@@ -43,8 +43,13 @@
 		PushMatrix
 		MatrixInstruction:
 			matrix: self.transform
+
 	canvas.after:
 		PopMatrix
+
+<ScrollPlane>:
+    do_scale: False
+    do_rotation: False
 
 <Image,AsyncImage>:
 	canvas:
