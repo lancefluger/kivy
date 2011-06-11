@@ -192,11 +192,18 @@ class WindowPygame(WindowBase):
                                 pygame.MOUSEBUTTONUP):
                 self._pygame_update_modifiers()
                 x, y = event.pos
-                btn = 'left'
-                if event.button == 3:
-                    btn = 'right'
+                if event.button == 1:
+                    btn = 'left'
                 elif event.button == 2:
                     btn = 'middle'
+                elif event.button == 3:
+                    btn = 'right'
+                elif event.button == 4:
+                    btn = 'scroll_down'
+                elif event.button == 5:
+                    btn = 'scroll_up'
+                else:
+                    btn = "mouse_button_%d"%event.button
                 eventname = 'on_mouse_down'
                 if event.type == pygame.MOUSEBUTTONUP:
                     eventname = 'on_mouse_up'

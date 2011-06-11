@@ -27,6 +27,7 @@ from kivy.input.motionevent import MotionEvent
 # late binding
 Color = Ellipse = None
 
+
 class MouseMotionEvent(MotionEvent):
 
     def depack(self, args):
@@ -165,7 +166,7 @@ class MouseMotionEventProvider(MotionEventProvider):
         rx = x / float(width)
         ry = 1. - y / float(height)
         cur = self.find_touch(rx, ry)
-        if button == 'left' and cur and not ('ctrl' in modifiers):
+        if button != 'right' and cur and not ('ctrl' in modifiers):
             self.remove_touch(cur)
             self.current_drag = None
         if self.alt_touch:
