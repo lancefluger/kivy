@@ -199,9 +199,9 @@ class WindowPygame(WindowBase):
                 elif event.button == 3:
                     btn = 'right'
                 elif event.button == 4:
-                    btn = 'scroll_down'
-                elif event.button == 5:
                     btn = 'scroll_up'
+                elif event.button == 5:
+                    btn = 'scroll_down'
                 else:
                     btn = "mouse_button_%d"%event.button
                 eventname = 'on_mouse_down'

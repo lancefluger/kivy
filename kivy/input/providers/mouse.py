@@ -31,9 +31,12 @@ Color = Ellipse = None
 class MouseMotionEvent(MotionEvent):
 
     def depack(self, args):
-        self.profile = ['pos']
+        self.profile = ['pos', 'button']
         self.is_touch = True
-        self.sx, self.sy = args
+        if len(args) == 3:
+            self.sx, self.sy, self.button = args
+        else:
+            self.sx, self.sy = args
         super(MouseMotionEvent, self).depack(args)
 
     #
@@ -111,11 +114,11 @@ class MouseMotionEventProvider(MotionEventProvider):
                 return t
         return False
 
-    def create_touch(self, rx, ry, is_double_tap):
+    def create_touch(self, rx, ry, is_double_tap, btn='none'):
         self.counter += 1
         id = 'mouse' + str(self.counter)
         self.current_drag = cur = MouseMotionEvent(
-            self.device, id=id, args=[rx, ry])
+            self.device, id=id, args=[rx, ry, btn])
         cur.is_double_tap = is_double_tap
         self.touches[id] = cur
         cur.update_graphics(EventLoop.window)
@@ -141,7 +144,8 @@ class MouseMotionEventProvider(MotionEventProvider):
         elif self.alt_touch is not None and 'alt' not in modifiers:
             # alt just released ?
             is_double_tap = 'shift' in modifiers
-            cur = self.create_touch(rx, ry, is_double_tap)
+            button = self.alt_touch.button
+            cur = self.create_touch(rx, ry, is_double_tap, button)
         return True
 
     def on_mouse_press(self, win, x, y, button, modifiers):
@@ -155,7 +159,7 @@ class MouseMotionEventProvider(MotionEventProvider):
             self.current_drag = newMotionEvent
         else:
             is_double_tap = 'shift' in modifiers
-            cur = self.create_touch(rx, ry, is_double_tap)
+            cur = self.create_touch(rx, ry, is_double_tap, button)
             if 'alt' in modifiers:
                 self.alt_touch = cur
                 self.current_drag = None
