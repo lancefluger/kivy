@@ -114,17 +114,6 @@ from kivy.animation import Animation
 class ScreenApp(App):
     def build(self):
         pass
-        """
-        s = Screen()
-        b = F.Button(text="FBO", size_hint=(None, None))
-        s.add_widget(b)
-
-        def anim_btn(*args):
-            Animation(x=s.width-b.width).start(b)
-        b.bind(on_press=anim_btn)
-
-        return s
-        """
 
 if __name__ == "__main__":
     ScreenApp().run()
