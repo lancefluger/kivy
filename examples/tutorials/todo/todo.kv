@@ -1,18 +1,44 @@
-BoxLayout:
+<TodoItem>:
+    size_hint_y: None
+    height: 50
+    on_done: app.save()
+
+    CheckBox:
+        id: checkbox
+        size_hint_x: 0.1
+        active: root.done
+        on_active: root.done = self.active
+    Label:
+        text: root.text
+        size_hint_x: 0.9
+        halign: 'left'
+        text_size: self.width, None
+
+
+
+<TodoList>:
+    todo_layout: todo_layout
+    text_input: text_input
     orientation: 'vertical'
-    Label:
-        text: "todo item 1"
-    Label:
-        text: "todo item 2"
-    Label:
-        text: "todo item 3"
-    Label:
-        text: "todo item 4"
+
+    #scrollview, with list of todo items inside
+    ScrollView:
+        BoxLayout:
+            id: todo_layout
+            orientation: 'vertical'
+            height: len(self.children) * 50
+            size_hint_y: None
+
+    #text input and button at bottom of screen
     BoxLayout:
         size_hint: (1.0, None)
-        height: 50
+        height: 30
+
         TextInput:
+            id: text_input
             size_hint: (0.9, 1.0)
+            on_text_validate: root.add_todo(self.text)
         Button:
-            text: "+"
             size_hint: (0.1, 1.0)
+            text: "+"
+            on_release: root.add_todo(text_input.text)
