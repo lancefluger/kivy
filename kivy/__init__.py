@@ -19,6 +19,10 @@ in the C language.
 See http://kivy.org for more information.
 '''
 
+# __future__ import must be first statement
+from __future__ import print_function # We require Python 2.6 or later
+
+
 __all__ = (
     'require',
     'kivy_configure', 'kivy_register_post_configuration',
@@ -41,6 +45,9 @@ from kivy.utils import platform
 # internals for post-configuration
 __kivy_post_configuration = []
 
+if sys.version_info[0] == 3:
+    if sys.version_info[1] < 3:
+        Logger.critical("For Python 3, we support only 3.3.0 or higher")
 
 if platform() == 'macosx' and sys.maxsize < 9223372036854775807:
     r = '''Unsupported Python version detected!:
