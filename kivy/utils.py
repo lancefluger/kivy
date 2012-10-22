@@ -28,12 +28,12 @@ def boundary(value, minvalue, maxvalue):
 
 def intersection(set1, set2):
     '''Return intersection between 2 list'''
-    return filter(lambda s: s in set2, set1)
+    return [s for s in set1 if s in set2]
 
 
 def difference(set1, set2):
     '''Return difference between 2 list'''
-    return filter(lambda s: s not in set2, set1)
+    return [s for s in set1 if s not in set2]
 
 
 def interpolate(value_from, value_to, step=10):
@@ -140,8 +140,8 @@ def deprecated(func):
                     'Called from %s line %d'
                     ' by %s().') % (
                             func.__name__,
-                            func.func_code.co_filename,
-                            func.func_code.co_firstlineno + 1,
+                            func.__code__.co_filename,
+                            func.__code__.co_firstlineno + 1,
                             file, line, caller)
             from kivy.logger import Logger
             Logger.warn(warning)
@@ -216,9 +216,9 @@ class OrderedDict(dict, DictMixin):
         if not self:
             raise KeyError('dictionary is empty')
         if last:
-            key = reversed(self).next()
+            key = next(reversed(self))
         else:
-            key = iter(self).next()
+            key = next(iter(self))
         value = self.pop(key)
         return key, value
 
@@ -247,7 +247,7 @@ class OrderedDict(dict, DictMixin):
     def __repr__(self):
         if not self:
             return '%s()' % (self.__class__.__name__, )
-        return '%s(%r)' % (self.__class__.__name__, self.items())
+        return '%s(%r)' % (self.__class__.__name__, list(self.items()))
 
     def copy(self):
         return self.__class__(self)
@@ -261,7 +261,7 @@ class OrderedDict(dict, DictMixin):
 
     def __eq__(self, other):
         if isinstance(other, OrderedDict):
-            return len(self) == len(other) and self.items() == other.items()
+            return len(self) == len(other) and list(self.items()) == list(other.items())
         return dict.__eq__(self, other)
 
     def __ne__(self, other):

@@ -146,7 +146,7 @@ class LoaderBase(object):
     def _load_urllib(self, filename):
         '''(internal) Loading a network file. First download it, save it to a
         temporary file, and pass it to _load_local()'''
-        import urllib2
+        import urllib.request, urllib.error, urllib.parse
         proto = filename.split(':', 1)[0]
         if proto == 'smb':
             try:
@@ -167,10 +167,10 @@ class LoaderBase(object):
 
             if proto == 'smb':
                 # read from samba shares
-                fd = urllib2.build_opener(SMBHandler).open(filename)
+                fd = urllib.request.build_opener(SMBHandler).open(filename)
             else:
                 # read from internet
-                fd = urllib2.urlopen(filename)
+                fd = urllib.request.urlopen(filename)
             idata = fd.read()
             fd.close()
 

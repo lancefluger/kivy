@@ -112,7 +112,7 @@ class MotionEventMetaclass(type):
         return super(MotionEventMetaclass, mcs).__new__(mcs, name, bases, attrs)
 
 
-class MotionEvent(object):
+class MotionEvent(object, metaclass=MotionEventMetaclass):
     '''Abstract class to represent a touch and no-touch object.
 
     :Parameters:
@@ -121,8 +121,6 @@ class MotionEvent(object):
         `args` : list
             list of parameters, passed to depack() function
     '''
-
-    __metaclass__ = MotionEventMetaclass
     __uniq_id = 0
     __attrs__ = \
         ('device', 'push_attrs', 'push_attrs_stack',
@@ -373,7 +371,7 @@ class MotionEvent(object):
         '''Pop attributes values from the stack
         '''
         attrs, values = self.push_attrs_stack.pop()
-        for i in xrange(len(attrs)):
+        for i in range(len(attrs)):
             setattr(self, attrs[i], values[i])
 
     def apply_transform_2d(self, transform):

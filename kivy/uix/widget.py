@@ -85,7 +85,7 @@ class WidgetMetaclass(type):
         Factory.register(name, cls=mcs)
 
 
-class Widget(EventDispatcher):
+class Widget(EventDispatcher, metaclass=WidgetMetaclass):
     '''Widget class. See module documentation for more information.
 
     :Events:
@@ -102,8 +102,6 @@ class Widget(EventDispatcher):
         in contructing a simple class, without subclassing :class:`Widget`.
 
     '''
-
-    __metaclass__ = WidgetMetaclass
 
     def __init__(self, **kwargs):
         # Before doing anything, ensure the windows exist.

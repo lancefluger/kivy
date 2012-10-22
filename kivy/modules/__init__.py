@@ -188,7 +188,7 @@ class ModuleBase:
 
     def update(self):
         '''Update status of module for each windows'''
-        modules_to_activate = map(lambda x: x[0], Config.items('modules'))
+        modules_to_activate = [x[0] for x in Config.items('modules')]
         for win in self.wins:
             for name in self.mods:
                 if not name in modules_to_activate:
@@ -197,15 +197,15 @@ class ModuleBase:
                 self.activate_module(name, win)
 
     def usage_list(self):
-        print
-        print 'Available modules'
-        print '================='
+        print()
+        print('Available modules')
+        print('=================')
         for module in self.list():
             if not 'module' in self.mods[module]:
                 self.import_module(module)
             text = self.mods[module]['module'].__doc__.strip("\n ")
-            print '%-12s: %s' % (module, text)
-        print
+            print('%-12s: %s' % (module, text))
+        print()
 
 Modules = ModuleBase()
 Modules.add_path(kivy.kivy_modules_dir)
@@ -213,4 +213,4 @@ if not 'KIVY_DOC' in os.environ:
     Modules.add_path(kivy.kivy_usermodules_dir)
 
 if __name__ == '__main__':
-    print Modules.list()
+    print(Modules.list())

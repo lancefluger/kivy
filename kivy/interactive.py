@@ -158,7 +158,7 @@ def safeWait(dt):
 
 
 def unwrap(ob):
-    while type(ob) == SafeMembrane:
+    while isinstance(ob, SafeMembrane):
         ob = ob._ref
     return ob
 
@@ -189,7 +189,7 @@ class SafeMembrane(object):
         self.safe.set()
 
     def isMethod(self, fn):
-        return type(fn) is type(self.isMethod)
+        return isinstance(fn, type(self.isMethod))
 
     # Everything from this point on is just a series of thread-safing proxy
     # methods that make calls against _ref and threadsafe whenever data will be
@@ -201,8 +201,8 @@ class SafeMembrane(object):
 
     def __call__(self, *args, **kw):
         self.safeIn()
-        args = map(unwrap, args)
-        for k in kw.keys():
+        args = list(map(unwrap, args))
+        for k in list(kw.keys()):
             kw[k] = unwrap(kw[k])
         r = self._ref(*args, **kw)
         self.safeOut()
@@ -236,7 +236,7 @@ class SafeMembrane(object):
         delattr(self._ref, attr)
         self.safeOut()
 
-    def __nonzero__(self):
+    def __bool__(self):
         return bool(self._ref)
 
     def __getitem__(self, arg):

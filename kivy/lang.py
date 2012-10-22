@@ -505,7 +505,7 @@ class ProxyApp(object):
         object.__getattribute__(self, '_ensure_app')()
         setattr(object.__getattribute__(self, '_obj'), name, value)
 
-    def __nonzero__(self):
+    def __bool__(self):
         object.__getattribute__(self, '_ensure_app')()
         return bool(object.__getattribute__(self, '_obj'))
 
@@ -649,7 +649,7 @@ class ParserRule(object):
             self._forbid_selectors()
 
     def precompile(self):
-        for x in self.properties.itervalues():
+        for x in self.properties.values():
             x.precompile()
         for x in self.handlers:
             x.precompile()
@@ -734,10 +734,10 @@ class Parser(object):
     '''
 
     PROP_ALLOWED = ('canvas.before', 'canvas.after')
-    CLASS_RANGE = range(ord('A'), ord('Z') + 1)
-    PROP_RANGE = range(ord('A'), ord('Z') + 1) + \
-                 range(ord('a'), ord('z') + 1) + \
-                 range(ord('0'), ord('9') + 1) + [ord('_')]
+    CLASS_RANGE = list(range(ord('A'), ord('Z') + 1))
+    PROP_RANGE = list(range(ord('A'), ord('Z') + 1)) + \
+                 list(range(ord('a'), ord('z') + 1)) + \
+                 list(range(ord('0'), ord('9') + 1)) + [ord('_')]
 
     __slots__ = ('rules', 'templates', 'root', 'sourcecode',
         'directives', 'filename')
@@ -812,7 +812,7 @@ class Parser(object):
         if not lines:
             return
         num_lines = len(lines)
-        lines = zip(range(num_lines), lines)
+        lines = list(zip(list(range(num_lines)), lines))
         self.sourcecode = lines[:]
 
         if __debug__:
@@ -987,12 +987,12 @@ class Parser(object):
 def custom_callback(__kvlang__, idmap, *largs, **kwargs):
     idmap['args'] = largs
     try:
-        exec __kvlang__.co_value in idmap
+        exec(__kvlang__.co_value, idmap)
     except:
         exc_info = sys.exc_info()
         traceback = make_traceback(exc_info)
         exc_type, exc_value, tb = traceback.standard_exc_info
-        raise exc_type, exc_value, tb
+        raise exc_type(exc_value).with_traceback(tb)
 
 
 def create_handler(iself, element, key, value, rule, idmap):
@@ -1028,7 +1028,7 @@ def create_handler(iself, element, key, value, rule, idmap):
 
     try:
         return eval(value, idmap)
-    except Exception, e:
+    except Exception as e:
         raise BuilderException(rule.ctx, rule.line, str(e))
 
 
@@ -1137,7 +1137,7 @@ class BuilderBase(object):
         self.rules = [x for x in self.rules if x[1].ctx.filename != filename]
         self._clear_matchcache()
         templates = {}
-        for x, y in self.templates.iteritems():
+        for x, y in self.templates.items():
             if y[2] != filename:
                 templates[x] = y
         self.templates = templates
@@ -1279,15 +1279,15 @@ class BuilderBase(object):
                 if 'ctx' in rctx['ids']:
                     idmap.update({'ctx': rctx['ids']['ctx']})
                 try:
-                    for prule in crule.properties.itervalues():
+                    for prule in crule.properties.values():
                         value = prule.co_value
-                        if type(value) is CodeType:
+                        if isinstance(value, CodeType):
                                 value = eval(value, idmap)
                         ctx[prule.name] = value
                     for prule in crule.handlers:
                         value = eval(prule.value, idmap)
                         ctx[prule.name] = value
-                except Exception, e:
+                except Exception as e:
                     raise BuilderException(prule.ctx, prule.line, str(e))
 
                 # create the template with an explicit ctx
@@ -1310,7 +1310,7 @@ class BuilderBase(object):
 
         # append the properties and handlers to our final resolution task
         if rule.properties:
-            rctx['set'].append((widget, rule.properties.values()))
+            rctx['set'].append((widget, list(rule.properties.values())))
         if rule.handlers:
             rctx['hdl'].append((widget, rule.handlers))
 
@@ -1326,7 +1326,7 @@ class BuilderBase(object):
                 assert(isinstance(rule, ParserRuleProperty))
                 key = rule.name
                 value = rule.co_value
-                if type(value) is CodeType:
+                if isinstance(value, CodeType):
                     value = create_handler(widget_set, widget_set, key,
                             value, rule, rctx['ids'])
                 setattr(widget_set, key, value)
@@ -1381,14 +1381,14 @@ class BuilderBase(object):
                 raise BuilderException(crule.ctx, crule.line,
                     'You can add only graphics Instruction in canvas.')
             try:
-                for prule in crule.properties.itervalues():
+                for prule in crule.properties.values():
                     key = prule.name
                     value = prule.co_value
-                    if type(value) is CodeType:
+                    if isinstance(value, CodeType):
                         value = create_handler(
                             widget, instr, key, value, prule, idmap)
                     setattr(instr, key, value)
-            except Exception, e:
+            except Exception as e:
                 raise BuilderException(prule.ctx, prule.line, str(e))
 
 #: Main instance of a :class:`BuilderBase`.

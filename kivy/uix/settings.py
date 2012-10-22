@@ -668,7 +668,7 @@ class Settings(BoxLayout):
                 data = json.loads(fd.read())
         else:
             data = json.loads(data)
-        if type(data) != list:
+        if not isinstance(data, list):
             raise ValueError('The first element must be a list')
         panel = SettingsPanel(title=title, settings=self, config=config)
         self.add_widget(panel)
@@ -686,7 +686,7 @@ class Settings(BoxLayout):
             # create a instance of the class, without the type attribute
             del setting['type']
             str_settings = {}
-            for key, item in setting.iteritems():
+            for key, item in setting.items():
                 str_settings[str(key)] = item
 
             instance = cls(panel=panel, **str_settings)
@@ -743,7 +743,7 @@ class Settings(BoxLayout):
         '''
         # search the panel on the list
         found = False
-        for idx, (wid, label) in self._panels.iteritems():
+        for idx, (wid, label) in self._panels.items():
             if panel is wid:
                 found = True
                 break
