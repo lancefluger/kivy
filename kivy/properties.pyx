@@ -478,7 +478,9 @@ cdef class StringProperty(Property):
     cdef check(self, EventDispatcher obj, value):
         if Property.check(self, obj, value):
             return True
-        if not isinstance(value, basestring):
+        # if not isinstance(value, basestring):
+        # PK3 fix:  basestring no longer exists, str or byte
+        if not isinstance(value, (str,bytes)):
             raise ValueError('%s.%s accept only str/unicode' % (
                 obj.__class__.__name__,
                 self.name))
