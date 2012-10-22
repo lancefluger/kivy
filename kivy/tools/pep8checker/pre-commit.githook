@@ -30,14 +30,14 @@ script = join(srcdir, 'tools', 'pep8checker', 'pep8kivy.py')
 # Only check the files that were staged
 proc = Popen(['git', 'diff', '--cached', '--name-only', 'HEAD'], stdout=PIPE)
 proc.wait()
-targets = [join(kivydir, target) for target in proc.stdout]
+targets = [join(kivydir, str(target)) for target in proc.stdout]
 call(['git', 'stash', 'save', '--keep-index', '--quiet'])
 retval = call([sys.executable, script, srcdir] + targets)
 call(['git', 'stash', 'pop', '--quiet'])
 
 if retval:
     # There are styleguide violations
-    print "Error:", retval, "styleguide violation(s) encountered!"
-    print "Your commit has been aborted. Please fix the violations and retry."
+    print("Error:", retval, "styleguide violation(s) encountered!")
+    print("Your commit has been aborted. Please fix the violations and retry.")
     sys.exit(retval)
 
