@@ -44,11 +44,6 @@ class LeapMotionEventProvider(MotionEventProvider):
     def __init__(self, device, args):
         super(LeapMotionEventProvider, self).__init__(device, args)
 
-    #def _run_leap_listener(self, **kwargs):
-    #    queue = kwargs.get('queue')
-    #    input_fn = kwargs.get('input_fn')
-    #    controller = Leap.Controller(self)
-
     def start(self):
         self.uid = 0
         self.current_hands = []
@@ -60,10 +55,11 @@ class LeapMotionEventProvider(MotionEventProvider):
 
     def update(self, dispatch_fn):
         try:
-            frame = _LEAP_QUEUE.popleft()
-            events = self.process_frame(frame)
-            for ev in events:
-                dispatch_fn(*ev)
+            while True:
+                frame = _LEAP_QUEUE.popleft()
+                events = self.process_frame(frame)
+                for ev in events:
+                    dispatch_fn(*ev)
         except IndexError:
             pass
 
@@ -72,17 +68,18 @@ class LeapMotionEventProvider(MotionEventProvider):
         new_hands = []
         events = []
         for hand in frame.hands():
-            new_hands.append(hand.id)
-            if hand.id in old_hands:
+            hid = hand.id()
+            new_hands.append(hid)
+            if hid in old_hands:
                 ev_type = 'move'
-                old_hands.remove(hand.id)
+                old_hands.remove(hid)
             else:
                 ev_type = 'down'
-            ev = (ev_type, LeapMotionEvent(self.device, hand.id, [hand]))
+            ev = (ev_type, LeapMotionEvent(self.device, hid, [hand]))
             events.append(ev)
         self.current_hands = new_hands
-        for hand_id in old_hands:
-            ev = ('up', LeapMotionEvent(self.device, hand_id, [None]))
+        for hid in old_hands:
+            ev = ('up', LeapMotionEvent(self.device, hid, [None]))
         return events
 
 
