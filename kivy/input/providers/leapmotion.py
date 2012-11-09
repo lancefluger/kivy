@@ -32,8 +32,6 @@ class LeapMotionEventProvider(MotionEventProvider):
     #    controller = Leap.Controller(self)
 
     def start(self):
-        if self.input_fn is None:
-            return
         self.uid = 0
         #self.queue = collections.deque()
         #self.thread = threading.Thread(
@@ -42,8 +40,8 @@ class LeapMotionEventProvider(MotionEventProvider):
         #)
         #self.thread.daemon = True
         #self.thread.start()
-        self.leap_listener = LeapMotionListener(self)
-        self.leap_controller = Leap.Controller(self.leap_listener)
+        listener = LeapMotionListener()
+        controller = Leap.Controller(listener)
 
     def stop(self):
         super(LeapMotionEventProvider, self).stop()
@@ -53,9 +51,6 @@ class LeapMotionEventProvider(MotionEventProvider):
 
 
 class LeapMotionListener(Leap.Listener):
-
-    def __init__(self, leap_provider):
-        self._provider = leap_provider
 
     def onInit(self, controller):
         Logger.debug("leapmotion: Initialized")

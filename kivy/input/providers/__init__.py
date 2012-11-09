@@ -58,3 +58,10 @@ if platform == 'android' or 'KIVY_DOC' in os.environ:
     except:
         err = 'Input: AndroidJoystick is not supported by your version of linux'
         Logger.exception(err)
+
+
+try:
+    import kivy.input.providers.leapmotion
+except:
+        err = 'Input: Failed to enable leapmotion input provider'
+        Logger.warning(err)
