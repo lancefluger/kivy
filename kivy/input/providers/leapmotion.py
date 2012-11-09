@@ -6,18 +6,36 @@ Leap Motion provider implementation
 __all__ = ('LeapMotionEventProvider', )
 
 #from kivy.base import EventLoop
-#from collections import deque
+from collections import deque
 from kivy.logger import Logger
 from kivy.input.provider import MotionEventProvider
 from kivy.input.factory import MotionEventFactory
 from kivy.input.motionevent import MotionEvent
 import Leap
 
+_LEAP_QUEUE = deque()
+
 
 class LeapMotionEvent(MotionEvent):
 
     def depack(self, args):
         super(LeapMotionEvent, self).depack(args)
+        if args[0] is None:
+            return
+        self.profile = ('hand', 'fingers', 'palm')
+        hand = args[0]
+        self.fingers = hand.fingers()
+        self.palm = None
+        palmRay = hand.palm()
+        if palmRay is not None:
+            self.palm = palmRay.position
+            wrist = palmRay.direction
+            direction = "right"
+            if wrist.x > 0:
+                direction = "left"
+            self.sx = palm.x
+            self.sy = palm.y
+            self.sz = palm.z
 
 
 class LeapMotionEventProvider(MotionEventProvider):
@@ -33,40 +51,56 @@ class LeapMotionEventProvider(MotionEventProvider):
 
     def start(self):
         self.uid = 0
-        #self.queue = collections.deque()
-        #self.thread = threading.Thread(
-        #    target = self._run_leap_listener,
-        #    kwargs = {'queue': self.queue, 'input_fn': self.input_fn}
-        #)
-        #self.thread.daemon = True
-        #self.thread.start()
-        listener = LeapMotionListener()
-        controller = Leap.Controller(listener)
+        self.current_hands = []
+        self.listener = LeapMotionListener()
+        self.controller = Leap.Controller(self.listener)
 
     def stop(self):
         super(LeapMotionEventProvider, self).stop()
 
     def update(self, dispatch_fn):
-        pass
+        try:
+            frame = _LEAP_QUEUE.popleft()
+            events = self.process_frame(frame)
+            for ev in events:
+                dispatch_fn(*ev)
+        except IndexError:
+            pass
+
+    def process_frame(self, frame):
+        old_hands = self.current_hands
+        new_hands = []
+        events = []
+        for hand in frame.hands():
+            new_hands.append(hand.id)
+            if hand.id in old_hands:
+                ev_type = 'move'
+                old_hands.remove(hand.id)
+            else:
+                ev_type = 'down'
+            ev = (ev_type, LeapMotionEvent(self.device, hand.id, [hand]))
+            events.append(ev)
+        self.current_hands = new_hands
+        for hand_id in old_hands:
+            ev = ('up', LeapMotionEvent(self.device, hand_id, [None]))
+        return events
 
 
 class LeapMotionListener(Leap.Listener):
 
     def onInit(self, controller):
-        Logger.debug("leapmotion: Initialized")
+        Logger.info("leapmotion: Initialized")
 
     def onConnect(self, controller):
-        Logger.debug("leapmotion: Connected")
+        Logger.info("leapmotion: Connected")
 
     def onDisconnect(self, controller):
-        Logger.debug("leapmotion: Disconnected")
+        Logger.info("leapmotion: Disconnected")
 
     def onFrame(self, controller):
         Logger.debug("leapmotion: OnFrame")
         frame = controller.frame()
-        hands = frame.hands()
-        numHands = len(hands)
-        Logger.info("Frame: {0}, hands: {1}".format(frame.id(), numHands))
+        _LEAP_QUEUE.append(frame)
 
 
 # registers
