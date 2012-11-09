@@ -29,13 +29,13 @@ class LeapMotionEvent(MotionEvent):
         palmRay = hand.palm()
         if palmRay is not None:
             self.palm = palmRay.position
-            wrist = palmRay.direction
-            direction = "right"
-            if wrist.x > 0:
-                direction = "left"
-            self.sx = palm.x
-            self.sy = palm.y
-            self.sz = palm.z
+            #wrist = palmRay.direction
+            #direction = "right"
+            #if wrist.x > 0:
+            #    direction = "left"
+            self.sx = self.palm.x
+            self.sy = self.palm.y
+            self.sz = self.palm.z
 
 
 class LeapMotionEventProvider(MotionEventProvider):
@@ -98,7 +98,7 @@ class LeapMotionListener(Leap.Listener):
         Logger.info("leapmotion: Disconnected")
 
     def onFrame(self, controller):
-        Logger.debug("leapmotion: OnFrame")
+        Logger.trace("leapmotion: OnFrame")
         frame = controller.frame()
         _LEAP_QUEUE.append(frame)
 
