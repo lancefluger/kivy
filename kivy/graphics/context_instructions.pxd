@@ -6,6 +6,15 @@ from transformation cimport Matrix
 from instructions cimport ContextInstruction
 from texture cimport Texture
 
+cdef class PushState(ContextInstruction):
+    pass
+
+cdef class ChangeState(ContextInstruction):
+    pass
+
+cdef class PopState(ContextInstruction):
+    pass
+
 cdef class LineWidth(ContextInstruction):
     cdef void apply(self)
 
@@ -44,6 +53,11 @@ cdef class Rotate(Transform):
 cdef class Scale(Transform):
     cdef float s
     cdef void apply(self)
+
+cdef class ScaleXYZ(Transform):
+    cdef double _x, _y, _z
+    cdef void apply(self)
+    cdef set_scale(self, double x, double y, double z)
 
 cdef class Translate(Transform):
     cdef double _x, _y, _z

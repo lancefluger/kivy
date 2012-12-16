@@ -77,8 +77,8 @@ from kivy.graphics.instructions import Callback, Canvas, CanvasBase, \
     ContextInstruction, Instruction, InstructionGroup, RenderContext, \
     VertexInstruction
 from kivy.graphics.context_instructions import BindTexture, Color, \
-    MatrixInstruction, PopMatrix, PushMatrix, Rotate, Scale, \
-    Translate, gl_init_resources
+    PushState, ChangeState, PopState, MatrixInstruction, PopMatrix, \
+    PushMatrix, Rotate, Scale, Translate, gl_init_resources
 from kivy.graphics.vertex_instructions import Bezier, BorderImage, Ellipse, \
     GraphicException, Line, Mesh, Point, Quad, Rectangle, Triangle
 from kivy.graphics.stencil_instructions import StencilPop, StencilPush, \

@@ -100,6 +100,63 @@ cdef tuple hsv_to_rgb(float h, float s, float v):
     # Cannot get here
 
 
+cdef class PushState(ContextInstruction):
+    '''Instruction that pushes arbitrary states/uniforms on the context
+    state stack.
+    '''
+    def __init__(self, *args, **kwargs):
+        ContextInstruction.__init__(self, **kwargs)
+        self.context_push = list(args)
+
+    property state:
+        def __get__(self):
+            return ','.join(self.context_push)
+        def __set__(self, value):
+            self.context_push = value.split(',')
+
+    property states:
+        def __get__(self):
+            return self.context_push
+        def __set__(self, value):
+            self.context_push = list(value)
+
+
+cdef class ChangeState(ContextInstruction):
+    '''Instruction that changes the values of arbitrary states/uniforms on the
+    current render context.
+    '''
+    def __init__(self, **kwargs):
+        ContextInstruction.__init__(self, **kwargs)
+        self.context_state.update(**kwargs)
+
+    property changes:
+        def __get__(self):
+            return self.context_state
+        def __set__(self, value):
+            self.context_state = dict(value)
+
+
+cdef class PopState(ContextInstruction):
+    '''Instruction that pops arbitrary states/uniforms on the context
+    state stack.
+    '''
+    def __init__(self, *args, **kwargs):
+        ContextInstruction.__init__(self, **kwargs)
+        self.context_pop = list(args)
+
+    property state:
+        def __get__(self):
+            return ','.join(self.context_pop)
+        def __set__(self, value):
+            self.context_pop = value.split(',')
+
+    property states:
+        def __get__(self):
+            return self.context_pop
+        def __set__(self, value):
+            self.context_pop = list(value)
+
+
 cdef class Color(ContextInstruction):
     '''Instruction to set the color state for any vertices being drawn after it.
     All the values passed are between 0 and 1, not 0 and 255.
@@ -442,6 +499,63 @@ cdef class Scale(Transform):
         def __set__(self, s):
             self.s = s
             self.matrix = Matrix().scale(s, s, s)
+
+
+cdef class ScaleXYZ(Transform):
+    '''Instruction to create a non uniform scale transformation
+    '''
+    def __init__(self, *args):
+        cdef double x, y, z
+        Transform.__init__(self)
+        if len(args) == 3:
+            x, y, z = args
+            self.set_translate(x, y, z)
+
+    cdef set_scale(self, double x, double y, double z):
+        self.matrix = Matrix().scale(x, y, z)
+        self._x = x
+        self._y = y
+        self._z = z
+
+    property x:
+        '''Property for getting/setting the scale on X axis
+        '''
+        def __get__(self):
+            return self._x
+        def __set__(self, double x):
+            self.set_translate(x, self._y, self._z)
+
+    property y:
+        '''Property for getting/setting the scale on Y axis
+        '''
+        def __get__(self):
+            return self._y
+        def __set__(self, double y):
+            self.set_translate(self._x, y, self._z)
+
+    property z:
+        '''Property for getting/setting the scale on Z axis
+        '''
+        def __get__(self):
+            return self._z
+        def __set__(self, double z):
+            self.set_translate(self._x, self._y, z)
+
+    property xy:
+        '''2 tuple with scale vector in 2D for x and y axis
+        '''
+        def __get__(self):
+            return self._x, self._y
+        def __set__(self, c):
+            self.set_translate(c[0], c[1], self._z)
+
+    property xyz:
+        '''3 tuple scale vector in 3D in x, y, and z axis
+        '''
+        def __get__(self):
+            return self._x, self._y, self._z
+        def __set__(self, c):
+            self.set_translate(c[0], c[1], c[2])
 
 
 cdef class Translate(Transform):
